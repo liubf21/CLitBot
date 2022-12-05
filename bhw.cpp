@@ -292,3 +292,465 @@ int main(){
 
     return 0;
 }
+
+// 执行模块
+// 执行结果枚举类型
+enum ResultType{
+    LIGHT, // 结束条件1，点亮了全部灯，干得漂亮
+    LIMIT, // 结束条件2，到达操作数上限
+    DARK   // 结束条件3，MAIN过程执行完毕
+};
+// 执行结果类型
+struct Result{
+    int steps; // 记录总步数
+    ResultType result; // 用enum记录结束原因
+};
+
+int light = 0;//点亮的灯数
+//方便调用的执行函数
+Result Operation(Opseq P , int Proc_Num , Result R){
+    Direction DIR = game.map_run.robot.dir;
+    int X = game.map_run.robot.pos.x;
+    int Y = game.map_run.robot.pos.y;
+    for(int i = 0 ; i < P.procs[Proc_Num].count ; i++){
+        switch(P.procs[Op_Num].ops[i]){
+            case TL:
+                switch(DIR){
+                    case UP:
+                        game.map_run.robot.dir = LEFT;
+                        break;
+                    case LEFT:
+                        game.map_run.robot.dir = DOWN;
+                        break;
+                    case DOWN:
+                        game.map_run.robot.dir = RIGHT;
+                        break
+                    case RIGHT:
+                        game.map_run.robot.dir = UP;
+                        break;
+                }
+                break;
+            case TR:
+                switch(DIR){
+                    case UP:
+                        game.map_run.robot.dir = RIGHT;
+                        break;
+                    case LEFT:
+                        game.map_run.robot.dir = UP;
+                        break;
+                    case DOWN:
+                        game.map_run.robot.dir = LEFT;
+                        break
+                    case RIGHT:
+                        game.map_run.robot.dir = DOWN;
+                        break;
+                }
+                break;
+            case MOV:
+                switch(DIR){
+                    case UP:
+                        if(Y == 0){
+                            cout << "WARNING : OUT OF MAP";
+                        }
+                        else if(game.map_run.cells[Y - 1][X].height != game.map_run.cells[Y][X].height){
+                            cout << "WARNING : WRONG RELATIVE HEIGHT";
+                        }
+                        else{
+                            game.map_run.cells[Y][X].robot = 0;
+                            game.map_run.cells[Y - 1][X].robot = 1;
+                            game.map_run.robot.pos.y--;
+                        }
+                        break;
+                    case LEFT:
+                        if(X == 0){
+                            cout << "WARNING : OUT OF MAP";
+                        }
+                        else if(game.map_run.cells[Y][X - 1].height != game.map_run.cells[Y][X].height){
+                            cout << "WARNING : WRONG RELATIVE HEIGHT";
+                        }
+                        else{
+                            game.map_run.cells[Y][X].robot = 0;
+                            game.map_run.cells[Y][X - 1].robot = 1;
+                            game.map_run.robot.pos.x--;
+                        }
+                        break;
+                    case DOWN:
+                        if(Y == game.map_run.row){
+                            cout << "WARNING : OUT OF MAP";
+                        }
+                        else if(game.map_run.cells[Y + 1][X].height != game.map_run.cells[Y][X].height){
+                            cout << "WARNING : WRONG RELATIVE HEIGHT";
+                        }
+                        else{
+                            game.map_run.cells[Y][X].robot = 0;
+                            game.map_run.cells[Y + 1][X].robot = 1;
+                            game.map_run.robot.pos.y++;
+                        }
+                        break;
+                    case RIGHT:
+                        if(X == game.map_run.col){
+                            cout << "WARNING : OUT OF MAP";
+                        }
+                        else if(game.map_run.cells[X + 1][X].height != game.map_run.cells[Y][X].height){
+                            cout << "WARNING : WRONG RELATIVE HEIGHT";
+                        }
+                        else{
+                            game.map_run.cells[Y][X].robot = 0;
+                            game.map_run.cells[Y][X + 1].robot = 1;
+                            game.map_run.robot.pos.x++;
+                        }
+                        break;
+                }
+                break;
+            case JMP:
+                switch(DIR){
+                    case UP:
+                        if(Y == 0){
+                            cout << "WARNING : OUT OF MAP";
+                        }
+                        else if(!(game.map_run.cells[Y - 1][X].height == game.map_run.cells[Y][X].height + 1 || game.map_run.cells[Y - 1][X].height == game.map_run.cells[Y][X].height - 1)){
+                            cout << "WARNING : WRONG RELATIVE HEIGHT";
+                        }
+                        else{
+                            game.map_run.cells[Y][X].robot = 0;
+                            game.map_run.cells[Y - 1][X].robot = 1;
+                            game.map_run.robot.pos.y--;
+                        }
+                        break;
+                    case LEFT:
+                        if(X == 0){
+                            cout << "WARNING : OUT OF MAP";
+                        }
+                        else if(!(game.map_run.cells[Y][X - 1].height == game.map_run.cells[Y][X].height + 1 || game.map_run.cells[Y][X - 1].height == game.map_run.cells[Y][X].height - 1)){
+                            cout << "WARNING : WRONG RELATIVE HEIGHT";
+                        }
+                        else{
+                            game.map_run.cells[Y][X].robot = 0;
+                            game.map_run.cells[Y][X - 1].robot = 1;
+                            game.map_run.robot.pos.x--;
+                        }
+                        break;
+                    case DOWN:
+                        if(Y == game.map_run.row){
+                            cout << "WARNING : OUT OF MAP";
+                        }
+                        else if(!(game.map_run.cells[Y + 1][X].height == game.map_run.cells[Y][X].height + 1 || game.map_run.cells[Y + 1][X].height == game.map_run.cells[Y][X].height - 1)){
+                            cout << "WARNING : WRONG RELATIVE HEIGHT";
+                        }
+                        else{
+                            game.map_run.cells[Y][X].robot = 0;
+                            game.map_run.cells[Y + 1][X].robot = 1;
+                            game.map_run.robot.pos.y++;
+                        }
+                        break;
+                    case RIGHT:
+                        if(X == game.map_run.col){
+                            cout << "WARNING : OUT OF MAP";
+                        }
+                        else if(!(game.map_run.cells[Y][X + 1].height == game.map_run.cells[Y][X].height + 1 || game.map_run.cells[Y][X + 1].height == game.map_run.cells[Y][X].height - 1)){
+                            cout << "WARNING : WRONG RELATIVE HEIGHT";
+                        }
+                        else{
+                            game.map_run.cells[Y][X].robot = 0;
+                            game.map_run.cells[Y][X + 1].robot = 1;
+                            game.map_run.robot.pos.x++;
+                        }
+                        break;
+                }
+                break;
+            case LIT:
+                if(game.map_run.cells[Y][X].light_id == 1){
+                    game.map_run.cells[Y][X].light_id == 0;
+                    light++;
+                }
+                else if(game.map_run.cells[Y][X].light_id == -1){
+                    cout << "WARNING : THERE IS NOT A LIGHT ON YOUR POSITION";
+                }
+                else{
+                    cout << "WARNING : THE LIGHT ON YOUR POSITION HASE BEEN LIGHTEN";
+                }
+                break;
+            default://调用情况
+                for(int j = 0 ; j < 10 ; i++){
+                    if(P.procs[Proc_Num].ops[i] == OpType(j + 5)){
+                        R = Operation(P , j , R);
+                    }
+                }
+        }
+        game.auto_save_id++;
+        auto_save();
+        printMap(1);
+        R.steps++;
+        //结束条件
+        if(light == game.map_run.num_lights){
+            R.result = LIGHT;
+            light = 0;
+            return R;
+        }
+        else if(R.steps == game.limit){
+            R.result = LIMIT;
+            light = 0;
+            return R;
+        }
+        else if(Proc_Num == 0 && i + 1 == P.procs[0].count){
+            R.result = DARK;
+            light = 0;
+            return R;
+        }
+    }
+}
+
+Result robot_run(char * path){
+    Result res = {0 , LIGHT};
+    Opseq opseq;
+    game.map_run = game.map_init;
+    game.auto_save_id = 0;
+    auto_save();
+    printMap(1);
+    //输入
+    ifstream fin(path);
+    if (!fin.fail()){
+        fin>>opseq.count;
+        for(int i=0;i<opseq.count;i++)
+        {
+            fin>>opseq.procs[i].count;
+            for(int j=0;j<opseq.procs[i].count;j++)
+            {
+                // 读入指令
+                fin>>op_;
+                opseq.procs[i].ops[j]=trans(op_);
+                if(opseq.procs[i].ops[i]!=100)tmp++;
+            }
+        }
+    }
+    else cout<<"File failed!"<<endl;
+    fin.close();
+    return Operation(opseq , 0 , res);//返回结束原因
+}
+
+// 交互模块
+OpType trans(char op[]){
+    if(!strcmp(op,"TL")){
+        return TL;
+    }else if(!strcmp(op,"TR")){
+        return TR;
+    }else if(!strcmp(op,"MOV")){
+        return MOV;
+    }else if(!strcmp(op,"JMP")){
+        return JMP;
+    }else if(!strcmp(op,"LIT")){
+        return LIT;
+    }else if(!strcmp(op,"MAIN")){
+        return CALL;
+    }else if(op[0]=='P')
+    {
+        return OpType(CALL+op[1]-'0');
+    }else return OpType(100); // 错误指令
+}
+// 显示当前地图(测试时显示初始地图)
+void printMap(int k = 0)
+{
+    Map tmpmap = game.map_init;
+    if (k)
+    {
+        tmpmap = game.map_run;
+    }
+    for (int i = 0; i < tmpmap.row; i++)
+    {
+        for (int j = 0; j < tmpmap.col; j++)
+        {
+            // 高度不为0才输出
+            if (tmpmap.cells[i][j].height)
+            {
+                cout << "\e[";
+                // 判断格子是否有机器人，是否有灯（有灯判断是否被点亮
+                if (tmpmap.cells[i][j].robot)
+                    cout << "91;";
+                else
+                    cout << "92;";
+                if (tmpmap.cells[i][j].light_id == 1)
+                    cout << "104;";
+                else if (tmpmap.cells[i][j].light_id == 0)
+                    cout << "103;";
+                else
+                    cout << "100;";
+                cout << "1m" << tmpmap.cells[i][j].height;
+            }
+            else
+                cout << "\e[0m ";
+        }
+        cout << "\e[0m" << endl;
+    }
+    cout << "Robot is facing ";
+    switch (tmpmap.robot.dir)
+    {
+    case UP:
+        cout << "up." << endl;
+        break;
+    case DOWN:
+        cout << "down." << endl;
+        break;
+    case LEFT:
+        cout << "left." << endl;
+        break;
+    case RIGHT:
+        cout << "right." << endl;
+        break;
+    }
+}
+int main(){
+
+    char cmd[20], op_[10];
+    char path[MAX_PATH_LEN];
+    OpSeq opseq; // 当前读出的指令
+    // Robot bot;
+    while(1)
+    {
+        cin>>cmd;
+        // 判断命令
+        if(!strcmp(cmd,"LOAD")){
+            cin>>game.map_name;
+            // 读取文件信息
+            ifstream fin(game.map_name);
+            if (!fin.fail())
+            {
+
+                while (!fin.eof()) // 文件存在且未读完
+                {
+                    fin >> game.map_init.row >> game.map_init.col 
+                    >> game.map_init.num_lights >>game.map_init.num_procs;
+                    // 地图从下标为0开始
+                    for(int i=0;i<game.map_init.row;i++)
+                    {
+                        for(int j=0;j<game.map_init.col;j++)
+                        {
+                            fin>>game.map_init.cells[i][j].height;
+                        }
+                    }
+                    int x,y;
+                    for(int i=0;i<game.map_init.num_lights;i++)
+                    {
+                        fin>>x>>y;
+                        game.map_init.cells[y][x].light_id=1;
+                    }
+                    for(int i=0;i<game.map_init.num_procs;i++)
+                    {
+                        fin>>game.map_init.op_limit[i];
+                    }
+                    fin>>game.map_init.robot.pos.x>>game.map_init.robot.pos.y;
+                    int tmp;
+                    fin>>tmp;
+                    switch (tmp)
+                    {
+                    case 0:
+                        game.map_init.robot.dir = UP;
+                        break;
+                    case 1:
+                        game.map_init.robot.dir = DOWN;
+                        break;
+                    case 2:
+                        game.map_init.robot.dir = LEFT;
+                        break;
+                    case 3:
+                        game.map_init.robot.dir = RIGHT;
+                        break;
+                    }
+                }
+            }
+            else cout<<"File failed!"<<endl;
+            fin.close();
+        }else if(!strcmp(cmd,"AUTOSAVE")){
+            cin>>game.save_path;
+            if(!strcmp(game.save_path,"OFF")){
+                game.auto_save_id=0;
+            }else game.auto_save_id=1;
+        }else if(!strcmp(cmd,"LIMIT")){
+            cin>>game.limit;
+        }else if(!strcmp(cmd,"STATUS")){
+            cout<<"Map Name: "<<game.map_name<<endl;
+            cout<<"Autosave: "<<game.save_path<<endl;
+            cout<<"Step Limit: "<<game.limit<<endl;
+            printMap(); // 显示测试地图(传入1时显示当前地图)
+            cout<<"Proc Limit: [";
+            for(int i=0;i<game.map_init.num_procs-1;i++)cout<<game.map_init.op_limit[i]<<", ";
+            cout<<game.map_init.op_limit[game.map_init.num_procs-1]<<"]"<<endl;
+        }else if(!strcmp(cmd,"OP")){
+            // 新建指令序列
+            cin>>path;
+            int n,m,wrong=0;
+            cin>>n;
+            if(n>game.map_init.num_procs)wrong=1;
+            ofstream fout(path);
+            fout<<n<<endl;
+            for(int i=0;i<n;i++)
+            {
+                cin>>m;
+                if(m>game.map_init.op_limit[i])wrong=1;
+                fout<<m<<" ";
+                // 指令的输入
+                for(int j=0;j<m;j++)
+                {
+                    cin>>op_;
+                    fout<<op_<<" ";
+                }
+                fout<<endl;
+            }
+            fout.close();
+            if(wrong)cout<<"Limit Exceeded!"<<endl;
+        }else if(!strcmp(cmd,"RUN")){
+            // 执行指令序列
+            //int tmp=0; // 执行指令的总个数必须在执行中判断（可能有递归）
+            cin>>path;
+            /*ifstream fin(path);
+            if (!fin.fail()){
+                fin>>opseq.count;
+                for(int i=0;i<opseq.count;i++)
+                {
+                    fin>>opseq.procs[i].count;
+                    for(int j=0;j<opseq.procs[i].count;j++)
+                    {
+                        // 读入指令
+                        fin>>op_;
+                        opseq.procs[i].ops[j]=trans(op_);
+                        if(opseq.procs[i].ops[i]!=100)tmp++;
+                        // opseq.procs[i].ops[j]=OpType(CALL+1);
+                    }
+                }*/
+                Result re = robot_run(path);
+                cout<<"RUN "<<path<<", result: "<<endl;
+                switch(re.result){
+                    case LIGHT:
+                        cout << "LIGHT";
+                        break;
+                    case DARK:
+                        cout << "DARK";
+                        break;
+                    case LIMIT:
+                        cout << "LIMIT";
+                        break;
+                }
+                cout<<"Step(s) used: "<< re.step <<endl;
+                /*cout<<"RUN "<<path<<", result: "<<endl;
+                int unlight;
+                for(int i=0;i<game.map_run.num_lights;i++)
+                {
+                    if(!game.map_run.lights[i].lighten)unlight=1;
+                }
+                if(unlight)cout<<"unligthed"<<endl;
+                else cout<<"LIGHT"<<endl;*/
+                
+                /*cout<<"Step(s) used: "<<tmp<<endl;
+                printMap(1);
+            }else cout<<"File failed!"<<endl;
+            fin.close();*/
+        }else if(!strcmp(cmd,"EXIT")){
+            // 结束程序
+            cout<<"Exit Game."<<endl;
+            break;
+        }else{
+            cout<<"Please enter correct command!!!"<<endl;
+        }
+    }
+
+    return 0;
+}
